@@ -103,5 +103,5 @@ public class Todo {
                 "title='" + title + '\'' +
                 ", id=" + id +
                 '}';
-    }
+}
 }
