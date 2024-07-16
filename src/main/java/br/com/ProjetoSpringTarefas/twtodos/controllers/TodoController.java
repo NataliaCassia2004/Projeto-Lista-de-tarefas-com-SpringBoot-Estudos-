@@ -21,50 +21,44 @@ public class TodoController {
 
     private final TodoRepository todoRepository;
 
-    public TodoController(TodoRepository todoRepository){
+    public TodoController(TodoRepository todoRepository) {
         this.todoRepository = todoRepository;
     }
 
     @GetMapping("/")
-    public ModelAndView list(){
+    public ModelAndView list() {
         return new ModelAndView(
-                "todo/list",
-                Map.of("todos",todoRepository.findAll(Sort.by("deadLine")))
+            "todo/list", 
+            Map.of("todos", todoRepository.findAll(Sort.by("deadLine")))
         );
-
-
     }
 
     @GetMapping("/create")
-    public ModelAndView create(){
-        return new ModelAndView(
-                "todo/form",
-                Map.of("todo", new Todo()));
+    public ModelAndView create() {
+        return new ModelAndView("todo/form", Map.of("todo", new Todo()));
     }
 
     @PostMapping("/create")
-    public String create(@Valid Todo todo, BindingResult result){
-        if(result.hasErrors()){
-            return"todo/form";
+    public String create(@Valid Todo todo, BindingResult result) {
+        if (result.hasErrors()) {
+            return "todo/form";
         }
         todoRepository.save(todo);
         return "redirect:/";
     }
 
     @GetMapping("/edit/{id}")
-    public ModelAndView edit(@PathVariable Long id){
+    public ModelAndView edit(@PathVariable Long id) {
         var todo = todoRepository.findById(id);
-        if(todo.isEmpty()){
-            //caso o id que eu indiquei nao exista, vou lançar uma excessão
+        if (todo.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-
+        }
+        return new ModelAndView("todo/form", Map.of("todo", todo.get()));
     }
-        return new ModelAndView("todo/form",Map.of("todo",todo.get())) ;
-}
 
     @PostMapping("/edit/{id}")
-    public String edit(@Valid Todo todo, BindingResult result){
-        if(result.hasErrors()){
+    public String edit(@Valid Todo todo, BindingResult result) {
+        if (result.hasErrors()) {
             return "todo/form";
         }
         todoRepository.save(todo);
@@ -72,35 +66,30 @@ public class TodoController {
     }
 
     @GetMapping("/delete/{id}")
-    public ModelAndView delete(@PathVariable Long id){
+    public ModelAndView delete(@PathVariable Long id) {
         var todo = todoRepository.findById(id);
-        if(todo.isEmpty()){
-            //caso o id que eu indiquei nao exista, vou lançar uma excessão
+        if (todo.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-
         }
-    return new ModelAndView("todo/delete", Map.of("todo",todo.get()));
+        return new ModelAndView("todo/delete", Map.of("todo", todo.get()));
     }
 
     @PostMapping("/delete/{id}")
-    public String delete(Todo todo){
+    public String delete(Todo todo) {
         todoRepository.delete(todo);
         return "redirect:/";
     }
 
     @PostMapping("/finish/{id}")
-    public String finish(@PathVariable Long id){
+    public String finish(@PathVariable Long id) {
         var optionalTodo = todoRepository.findById(id);
-        if(optionalTodo.isEmpty()){
-            //caso o id que eu indiquei nao exista, vou lançar uma excessão
+        if (optionalTodo.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-
         }
         var todo = optionalTodo.get();
         todo.markHasFinished();
         todoRepository.save(todo);
         return "redirect:/";
-
-
-}
+    }
+    
 }

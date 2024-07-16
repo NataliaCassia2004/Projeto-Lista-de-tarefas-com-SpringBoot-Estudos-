@@ -1,47 +1,61 @@
 <!doctype html>
-<html lang="pt-br">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<html th:replace="~{base :: layout (~{::title}, ~{::main})}">
+  <head>
+    <title>Lista de Tarefas</title>
+  </head>
+  <body>
+    <main>
+      <h1>Lista de Tarefas</h1>
 
-    <title>
-        TWTODOS -
-        <th:block th:unless="${todo.id}">nova</th:block>
-        <th:block th:if="${todo.id}">editar</th:block>
-        tarefa
-    </title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
-</head>
-<body>
-<nav class="navbar bg-dark mb-4" data-bs-theme="dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" th:href="@{/}">TWTodos</a>
-    </div>
-</nav>
-<main class="container">
-    <h1>
-        <spam th:unless="${todo.id}">NOVA</spam>
-        <spam th:if="${todo.id}">EDITAR</spam>
-        TAREFA</h1>
-    <form method="POST" th:object="${todo}">
-        <input type="hidden" th:field="*{id}">
-        <div class="mb-3">
-            <label for="title" class="form-label"> Título</label>
-            <input type="text" class="form-control" id="title" th:field="*{title}" >
-            <ul>
-                <li th:each="error: ${#fields.errors('title')}" th:text="${error}" class="text-danger"></li>
-            </ul>
+      <table class="table" th:unless="${#lists.isEmpty(todos)}">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Título</th>
+            <th scope="col">Criado em</th>
+            <th scope="col">Data de entrega</th>
+            <th scope="col">Finalizado em</th>
+            <th scope="col">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="todo : ${todos}">
+            <th scope="row" th:text="${todo.id}">1</th>
+            <td th:text="${todo.title}">Mark</td>
+            <td th:text="${#temporals.format(todo.createAt)}">Otto</td>
+            <td th:text="${#temporals.format(todo.deadLine)}">@mdo</td>
+            <td th:text="${#temporals.format(todo.fineshedAt)} ?: '-'">@mdo</td>
+            <td>
+              <form class="d-inline" th:action="@{/finish/{id}(id=${todo.id})}" method="post">
+                <button 
+                  type="submit" 
+                  class="btn btn-sm btn-primary"
+                  th:classappend="${todo.fineshedAt} ? 'disabled' : ''"
+                >
+                  Concluir
+                </button>
+              </form>
+              <a 
+                th:href="@{/edit/{id}(id=${todo.id})}" 
+                class="btn btn-sm btn-secondary"
+                th:classappend="${todo.fineshedAt} ? 'disabled' : ''"
+              >
+                Editar
+              </a>
+              <a 
+                th:href="@{/delete/{id}(id=${todo.id})}"
+                class="btn btn-sm btn-danger"
+              >
+                Excluir
+              </a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
-            <label for="deadLine" class="form-label"> Data de entrega</label>
-            <input type="date" class="form-control" id="deadLine" th:field="*{deadLine}">
-            <ul>
-                <li th:each="error: ${#fields.errors('deadLine')}" th:text="${error}" class="text-danger"></li>
-            </ul>
-        </div>
-        <button type="submit" class="btn btn-primary"> Salvar </button>
-    </form>
+      <p th:if="${#lists.isEmpty(todos)}">Nenhuma tarefa cadastrada</p>
 
-</main>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
-</body>
+      <a th:href="@{/create}" class="btn btn-primary">Nova tarefa</a>
+    </main>
+  </body>
 </html>
